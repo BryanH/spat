@@ -2,8 +2,8 @@
 /*
  * Plugin Name: Subpages as Tabs Shortcode
  * Plugin URI: http://hbjitney.com/subpages-as-tabs.html
- * Description: Add [spat] to any page to embed all subpages as tabs at that location.
- * Version: 1.00
+ * Description: Add [spat] or [subpage-tabs] to any page to embed all subpages as tabs at that location.
+ * Version: 1.01
  * Author: HBJitney, LLC
  * Author URI: http://hbjitney.com/
  * License: GPL3
@@ -36,29 +36,90 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 		function __construct() {
 				add_filter( 'the_content', array( $this, 'subpages_tabs_shortcode' ) );
 				add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 10 );
+				add_filter( 'the_posts', 'conditionally_add_scripts_and_styles'); // the_posts gets triggered before wp_head
 		}
 
 		function spat_shortcode_enqueue() {
 				wp_enqueue_script( 'jquery' );
+				wp_enqueue_script( 'jquery-ui-core' );
 				wp_enqueue_script( 'jquery-ui-tabs' );
 				wp_enqueue_script( 'jquery-ui-widget' );
 		}
+
+		/**
+		* Enqueue scripts iff there are posts that have the shortcode
+		* cycle through all posts and use stripos (faster than regex) to see if shortcode is in one of the displayed posts
+		* http://beerpla.net/2010/01/13/wordpress-plugin-development-how-to-include-css-and-javascript-conditionally-and-only-when-needed-by-the-posts/
+		*/
+		function conditionally_add_scripts_and_styles( $posts ) {
+				if( empty( $posts ) ) {
+					return $posts;
+				}
+
+				$shortcode_found = false;
+				foreach( $posts as $post ) {
+						if( false !== stripos( $post->post_content, '[spat]' ) && false !== stripos( $post->post_content, '[subpage-tabs]' !== false ) ) {
+								$shortcode_found = true;
+								break;
+						}
+				}
+
+				if( $shortcode_found ) {
+						$this->spat_shortcode_enqueue();
+				}
+
+				return $posts;
+		}
+
 
 		/*
 		 * Process the content for the shortcode
 		 */
 		function subpages_tabs_shortcode( $content ) {
-				// If a page, then do split
-			if( is_page() ) {
-					//'[caspio id=(.+)\s*]',
-					// Get children
-					global $post;
+			// If a page, then do split
+			global $post;
+			if( 'page' == $post->post_type ) {
+				// Get ids of children
+				$wpq = new WP_Query();
+				$all_wp_pages = $wpq->query(array('post_type' => 'page'));
 
-					$content = preg_replace(
-							'/\[spit\]/'
-							, "<pre>" . print_r( $post, true ) . "</pre>"
-							, $content
-					);
+				// Filter through all pages and find Portfolio's children
+				$children = get_page_children($post->ID, $all_wp_pages);
+				$child_titles = array();
+				$child_contents = "
+";
+				$child_tablinks = "
+<div id='subpage-tabs'>
+	<ul>
+";
+				foreach ( $children as $child ) {
+					$child_tablinks .= "		<li><a href='#ctab-$child->ID'>$child->post_title</a></li>
+";
+					$child_contents .= "<div id='ctab-$child->ID'>
+$child->post_content
+</div>
+";
+				}
+				$child_tablinks .= "	</ul>
+";
+				$child_contents .= "</div>
+<script type='text/javascript'>
+/*<![CDATA[*/
+jQuery(
+	function(){
+		jQuery('#subpage-tabs').tabs();
+    }
+);
+/*]]>*/
+</script>
+";
+
+				// echo what we get back from WP to the browser
+				$content = preg_replace(
+						'/\[(?:spat|subpage-tabs)\]/'
+						, $child_tablinks . $child_contents
+						, $content
+				);
 			}
 			return $content;
 		}
@@ -70,7 +131,7 @@ if ( !class_exists('SupPageAsTabs' ) ) {
  * Otherwise, class is now defined; create a new one it to get the ball rolling.
  */
 if( class_exists( 'SupPageAsTabs' ) ) {
-		new SupPageAsTabs();
+	new SupPageAsTabs();
 } else {
 	$message = "<h2 style='color:red'>Error in plugin</h2>
 	<p>Sorry about that! Plugin <span style='color:blue;font-family:monospace'>caspio-shortcode</span> reports that it was unable to start.</p>
