@@ -35,8 +35,8 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 		 */
 		function __construct() {
 				add_filter( 'the_content', array( $this, 'subpages_tabs_shortcode' ) );
-				add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 10 );
-				add_filter( 'the_posts', 'conditionally_add_scripts_and_styles'); // the_posts gets triggered before wp_head
+				//add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 10 );
+				add_filter( 'the_posts', array( $this, 'conditionally_add_scripts_and_styles' ) ); // the_posts gets triggered before wp_head
 		}
 
 		function spat_shortcode_enqueue() {
@@ -58,7 +58,10 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 
 				$shortcode_found = false;
 				foreach( $posts as $post ) {
-						if( false !== stripos( $post->post_content, '[spat]' ) && false !== stripos( $post->post_content, '[subpage-tabs]' !== false ) ) {
+						if(
+								( true == stripos( $post->post_content, '[spat]' ) )
+								|| ( true == stripos( $post->post_content, '[subpage-tabs]' ) )
+						) {
 								$shortcode_found = true;
 								break;
 						}
