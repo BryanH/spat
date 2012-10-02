@@ -2,7 +2,7 @@
 /*
  * Plugin Name: Subpages as Tabs Shortcode
  * Plugin URI: http://hbjitney.com/subpages-as-tabs.html
- * Description: Add [spat] or [subpage-tabs] to any page to embed all subpages as tabs at that location.
+ * Description: Add [spat] or [subpage_tabs] to any page to embed all subpages as tabs at that location.
  * Version: 1.01
  * Author: HBJitney, LLC
  * Author URI: http://hbjitney.com/
@@ -34,8 +34,10 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 		 * Set up all actions, instantiate other
 		 */
 		function __construct() {
-				add_filter( 'the_content', array( $this, 'subpages_tabs_shortcode' ) );
+				//add_filter( 'the_content', array( $this, 'subpages_tabs_shortcode' ) );
 				//add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 10 );
+				add_shortcode('spat', array( $this, 'render_tabs' ) );
+				add_shortcode('subpage_tabs', array( $this, 'render_tabs' ) );
 				add_filter( 'the_posts', array( $this, 'conditionally_add_scripts_and_styles' ) ); // the_posts gets triggered before wp_head
 		}
 
@@ -44,6 +46,10 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 				wp_enqueue_script( 'jquery-ui-core' );
 				wp_enqueue_script( 'jquery-ui-tabs' );
 				wp_enqueue_script( 'jquery-ui-widget' );
+				wp_enqueue_script( 'jquery-ui-widget' );
+
+				wp_register_style( 'tab-style', plugins_url( 'style.php', __FILE__ ) );
+				wp_enqueue_style( 'tab-style' );
 		}
 
 		/**
@@ -78,16 +84,15 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 		/*
 		 * Process the content for the shortcode
 		 */
-		function subpages_tabs_shortcode( $content ) {
-			// If a page, then do split
-			global $post;
-			if( 'page' == $post->post_type ) {
+		function render_tabs( $attributes ) {
+				global $post;
+				// If a page, then do split
 				// Get ids of children
 				$wpq = new WP_Query();
 				$all_wp_pages = $wpq->query(array('post_type' => 'page'));
 
 				// Filter through all pages and find Portfolio's children
-				$children = get_page_children($post->ID, $all_wp_pages);
+				$children = get_page_children( $post->ID, $all_wp_pages );
 				$child_titles = array();
 				$child_contents = "
 ";
@@ -118,13 +123,8 @@ jQuery(
 ";
 
 				// echo what we get back from WP to the browser
-				$content = preg_replace(
-						'/\[(?:spat|subpage-tabs)\]/'
-						, $child_tablinks . $child_contents
-						, $content
-				);
-			}
-			return $content;
+				$content = $child_tablinks . $child_contents;
+				return $content;
 		}
 	}
 }
