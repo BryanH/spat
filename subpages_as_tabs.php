@@ -126,8 +126,66 @@ jQuery(
 				$content = $child_tablinks . $child_contents;
 				return $content;
 		}
+
+		/**
+		 * Add our options to the settings menu
+		 */
+		function add_admin() {
+				add_options_page(
+						__( "Subpage Tabs" )
+						, __( "Subpage Tabs" )
+						, 'manage_options'
+						, 'subpage_tabs_plugin'
+						, array( $this, 'plugin_options_page' )
+				);
+		}
+
+
+		/**
+		 * Callback for options page - set up page title and instantiate fields
+		 */
+		function plugin_options_page() {
+?>
+		<div class="plugin-options">
+		<h2><span><?php _e( "Subpage as Tabs Options" ); ?></span></h2>
+		<p><?php _e( "Here you set the tab appearance (colors, borders, etc)." ); ?></p>
+		 <form action="options.php" method="post">
+<?php
+		  settings_fields( 'subpage_tabs_options' );
+		  do_settings_sections( 'subpage_tabs_plugin' );
+?>
+
+		  <input name="Submit" type="submit" value="<?php esc_attr_e( 'Save Changes' ); ?>" />
+		 </form>
+		</div>
+<?php
+		}
+
+		/*
+		 * Define options section (only one) and fields (also only one!)
+		 */
+		function admin_init() {
+			// Group = setings_fields, name of options, validation callback
+			register_setting( 'subpage_tabs_options', 'subpage_tabs_options', array( $this, 'options_validate' ) );
+			// Unique ID, section title displayed, section callback, page name = do_settings_section
+			add_settings_section( 'flickr_show_section', '', array( $this, 'main_section' ), 'subpage_tabs_plugin' );
+			// Unique ID, Title, function callback, page name = do_settings_section, section name
+			add_settings_field( 'flickr_width', __( 'Width (in pixels)' ), array( $this, 'width_field'), 'subpage_tabs_plugin', 'flickr_show_section');
+			add_settings_field( 'flickr_height', __('Height (in pixels)' ), array( $this, 'height_field'), 'subpage_tabs_plugin', 'flickr_show_section');
+			add_settings_field( 'flickr_username', __( 'Username' ), array( $this, 'username_field'), 'subpage_tabs_plugin', 'flickr_show_section');
+		}
+
+		/*
+		 * Static content for options section
+		 */
+		function main_section() {
+				// GNDN
+		}
+
+
 	}
 }
+
 
 /*
  * Sanity - was there a problem setting up the class? If so, bail with error
