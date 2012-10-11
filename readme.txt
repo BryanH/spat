@@ -46,9 +46,14 @@ If you have a single file (ending in ".zip"), then use the *Upload* method. If y
 3. Option screen
 
 == Changelog ==
-0.9 Hard-coded stylesheet
+0.90 Hard-coded stylesheet
 
-0.7 Initial
+0.70 Initial
+
+== Upgrade Notice ==
+
+= 0.90 =
+Stylesheet included
 
 ==Readme Generator==
 
