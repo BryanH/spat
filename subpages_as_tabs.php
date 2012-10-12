@@ -35,7 +35,7 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 		 */
 		function __construct() {
 				//add_filter( 'the_content', array( $this, 'subpages_tabs_shortcode' ) );
-				//add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 10 );
+				add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 10 );
 				add_shortcode('spat', array( $this, 'render_tabs' ) );
 				add_shortcode('subpage_tabs', array( $this, 'render_tabs' ) );
 				add_filter( 'the_posts', array( $this, 'conditionally_add_scripts_and_styles' ) ); // the_posts gets triggered before wp_head
@@ -48,8 +48,8 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 				wp_enqueue_script( 'jquery-ui-widget' );
 				wp_enqueue_script( 'jquery-ui-widget' );
 
-				wp_register_style( 'tab-style', plugins_url( 'tab-style.php', __FILE__ ) );
-				wp_enqueue_style( 'tab-style' );
+				wp_register_style( 'subpage-tab-style', plugins_url( 'tab-style.php', __FILE__ ) );
+				wp_enqueue_style( 'subpage-tab-style' );
 		}
 
 		/**

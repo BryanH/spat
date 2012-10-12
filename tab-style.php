@@ -1,4 +1,6 @@
-<?php header("Content-type: text/css"); ?>
+<?php
+header("Content-type: text/css");
+print <<<_CSS
 /*
 * jQuery UI CSS Framework
 * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
@@ -404,4 +406,5 @@
 .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
 .ui-tabs .ui-tabs-panel { padding: 1em 1.4em; display: block; border-width: 0; background: none; }
 .ui-tabs .ui-tabs-hide { display: none !important; }
-
+_CSS;
+?>
