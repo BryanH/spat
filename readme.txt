@@ -49,14 +49,16 @@ If you have a single file (ending in ".zip"), then use the *Upload* method. If y
 3. Option screen
 
 == Changelog ==
+0.93 Made our Stylesheet/Javascript only show up on pages that have our shortcode, for speed.
+
 0.90 Hard-coded stylesheet
 
 0.70 Initial
 
 == Upgrade Notice ==
 
-= 0.90 =
-Stylesheet included
+= 0.93 =
+Non-shortcoded pages should now run a little faster
 
 ==Readme Generator==
 

@@ -3,7 +3,7 @@
  * Plugin Name: Subpages as Tabs Shortcode
  * Plugin URI: http://hbjitney.com/subpages-as-tabs.html
  * Description: Add [spat] or [subpage_tabs] to any page to embed all subpages as tabs at that location.
- * Version: 0.90
+ * Version: 0.93
  * Author: HBJitney, LLC
  * Author URI: http://hbjitney.com/
  * License: GPL3
@@ -66,7 +66,7 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 				foreach( $posts as $post ) {
 						if(
 								( true == stripos( $post->post_content, '[spat]' ) )
-								|| ( true == stripos( $post->post_content, '[subpage-tabs]' ) )
+								|| ( true == stripos( $post->post_content, '[subpage_tabs]' ) )
 						) {
 								$shortcode_found = true;
 								break;
@@ -195,7 +195,7 @@ if( class_exists( 'SupPageAsTabs' ) ) {
 	new SupPageAsTabs();
 } else {
 	$message = "<h2 style='color:red'>Error in plugin</h2>
-	<p>Sorry about that! Plugin <span style='color:blue;font-family:monospace'>caspio-shortcode</span> reports that it was unable to start.</p>
+	<p>Sorry about that! Plugin <span style='color:blue;font-family:monospace'>subpages_as_tabs_shortcode</span> reports that it was unable to start.</p>
 	<p><a href='mailto:support@hbjitney.com?subject=Subpages+as+Tabs+shortcode%20error&body=What version of Wordpress are you running? Please paste a list of your current active plugins here:'>Please report this error</a>.
 	Meanwhile, here are some things you can try:</p>
 	<ul><li>Uninstall (delete) this plugin, then reinstall it.</li>
