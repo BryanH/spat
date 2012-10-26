@@ -5,7 +5,7 @@ Requires at least: 3.3.2
 Tested up to: 3.4.2
 Stable tag: trunk
 
-Add the shortcode [subpage_tabs] to any parent page and all child pages will be rendered in that spot with a tabbed navigation layout.
+Add the shortcode [subpages_tabs] to any parent page and all child pages will be rendered in that spot with a tabbed navigation layout.
 
 == Description ==
 
@@ -13,7 +13,7 @@ Intended users: editors, authors, contributers
 
 This plugin will allow you to display the content of subpages in the parent page in the form of tabs.
 
-Simply add [spat] or [subpage_tabs] to any page and the subpages' content will be displayed at that location. See the screenshots.
+Simply add [spat] or [subpages_tabs] to any page and the subpages' content will be displayed at that location. See the screenshots.
 
 
 == Installation ==
@@ -49,6 +49,8 @@ If you have a single file (ending in ".zip"), then use the *Upload* method. If y
 3. Option screen
 
 == Changelog ==
+0.95 Added plural/singular tag to avoid confusion and easy-to-make mistakes
+
 0.93 Made our Stylesheet/Javascript only show up on pages that have our shortcode, for speed.
 
 0.90 Hard-coded stylesheet
@@ -57,8 +59,8 @@ If you have a single file (ending in ".zip"), then use the *Upload* method. If y
 
 == Upgrade Notice ==
 
-= 0.93 =
-Non-shortcoded pages should now run a little faster
+= 0.95 =
+More forgiving tags
 
 ==Readme Generator==
 
