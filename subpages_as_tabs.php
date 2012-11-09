@@ -3,7 +3,7 @@
  * Plugin Name: Subpages as Tabs Shortcode
  * Plugin URI: http://hbjitney.com/subpages-as-tabs.html
  * Description: Add [spat] or [subpage_tabs] to any page to embed all subpages as tabs at that location.
- * Version: 0.93
+ * Version: 0.97
  * Author: HBJitney, LLC
  * Author URI: http://hbjitney.com/
  * License: GPL3
@@ -22,12 +22,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if ( !class_exists('SupPageAsTabs' ) ) {
+if ( !class_exists('SubPageAsTabs' ) ) {
 	/**
  	* Wrapper class to isolate us from the global space in order
  	* to prevent method collision
  	*/
-	class SupPageAsTabs {
+	class SubPageAsTabs {
 		var $plugin_name;
 
 		/**
@@ -90,11 +90,12 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 				global $post;
 				// If a page, then do split
 				// Get ids of children
-				$wpq = new WP_Query();
-				$all_wp_pages = $wpq->query(array('post_type' => 'page'));
+				$children = get_pages( array(
+						'child_of' => $post->ID
+						, 'parent' => $post->ID
+						, 'sort_column' => 'menu_order'
+				) );
 
-				// Filter through all pages and find Portfolio's children
-				$children = get_page_children( $post->ID, $all_wp_pages );
 				$child_titles = array();
 				$child_contents = "
 ";
@@ -105,8 +106,10 @@ if ( !class_exists('SupPageAsTabs' ) ) {
 				foreach ( $children as $child ) {
 					$child_tablinks .= "		<li><a href='#ctab-$child->ID'>$child->post_title</a></li>
 ";
+					// Render any shortcodes
+					$new_content = do_shortcode( $child->post_content );
 					$child_contents .= "<div id='ctab-$child->ID'>
-$child->post_content
+$new_content
 </div>
 ";
 				}
@@ -123,8 +126,6 @@ jQuery(
 /*]]>*/
 </script>
 ";
-
-				// echo what we get back from WP to the browser
 				$content = $child_tablinks . $child_contents;
 				return $content;
 		}
@@ -193,8 +194,8 @@ jQuery(
  * Sanity - was there a problem setting up the class? If so, bail with error
  * Otherwise, class is now defined; create a new one it to get the ball rolling.
  */
-if( class_exists( 'SupPageAsTabs' ) ) {
-	new SupPageAsTabs();
+if( class_exists( 'SubPageAsTabs' ) ) {
+	new SubPageAsTabs();
 } else {
 	$message = "<h2 style='color:red'>Error in plugin</h2>
 	<p>Sorry about that! Plugin <span style='color:blue;font-family:monospace'>subpages_as_tabs_shortcode</span> reports that it was unable to start.</p>
