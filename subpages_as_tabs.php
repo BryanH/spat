@@ -3,7 +3,7 @@
  * Plugin Name: Subpages as Tabs Shortcode
  * Plugin URI: http://hbjitney.com/subpages-as-tabs.html
  * Description: Add [spat] or [subpage_tabs] to any page to embed all subpages as tabs at that location.
- * Version: 0.97
+ * Version: 1.00
  * Author: HBJitney, LLC
  * Author URI: http://hbjitney.com/
  * License: GPL3
@@ -34,8 +34,11 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 		 * Set up all actions, instantiate other
 		 */
 		function __construct() {
-				//add_filter( 'the_content', array( $this, 'subpages_tabs_shortcode' ) );
-				add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 10 );
+				add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 11 );
+
+				add_action('admin_menu', array( $this, 'add_admin' ) );
+				add_action( 'admin_init', array( $this, 'admin_init' ) );
+
 				add_shortcode('spat', array( $this, 'render_tabs' ) );
 				add_shortcode('subpage_tabs', array( $this, 'render_tabs' ) );
 				add_shortcode('subpages_tabs', array( $this, 'render_tabs' ) );
@@ -99,8 +102,10 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 				$child_titles = array();
 				$child_contents = "
 ";
+// TODO: start jquery 'loading' action here.
+
 				$child_tablinks = "
-<div id='subpage-tabs'>
+<div id='subpage-tabs' class='ui-tabs'>
 	<ul>
 ";
 				foreach ( $children as $child ) {
@@ -108,7 +113,7 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 ";
 					// Render any shortcodes
 					$new_content = do_shortcode( $child->post_content );
-					$child_contents .= "<div id='ctab-$child->ID'>
+					$child_contents .= "<div id='ctab-$child->ID' class='ui-tabs-hide'>
 $new_content
 </div>
 ";
@@ -126,6 +131,8 @@ jQuery(
 /*]]>*/
 </script>
 ";
+// TODO: destroy jquery 'loading' action here.
+
 				$content = $child_tablinks . $child_contents;
 				return $content;
 		}
@@ -135,8 +142,8 @@ jQuery(
 		 */
 		function add_admin() {
 				add_options_page(
-						__( "Subpage Tabs" )
-						, __( "Subpage Tabs" )
+						__( "Subpages as Tabs" )
+						, __( "Subpages as Tabs" )
 						, 'manage_options'
 						, 'subpage_tabs_plugin'
 						, array( $this, 'plugin_options_page' )
@@ -154,7 +161,7 @@ jQuery(
 		<p><?php _e( "Here you set the tab appearance (colors, borders, etc)." ); ?></p>
 		 <form action="options.php" method="post">
 <?php
-		  settings_fields( 'subpage_tabs_options' );
+		  settings_fields( 'subpages_as_tabs_options' );
 		  do_settings_sections( 'subpage_tabs_plugin' );
 ?>
 
@@ -169,13 +176,18 @@ jQuery(
 		 */
 		function admin_init() {
 			// Group = setings_fields, name of options, validation callback
-			register_setting( 'subpage_tabs_options', 'subpage_tabs_options', array( $this, 'options_validate' ) );
+			register_setting( 'subpages_as_tabs_options', 'subpages_as_tabs_options', array( $this, 'options_validate' ) );
 			// Unique ID, section title displayed, section callback, page name = do_settings_section
-			add_settings_section( 'flickr_show_section', '', array( $this, 'main_section' ), 'subpage_tabs_plugin' );
+			add_settings_section( 'subpages_tabs_section', '', array( $this, 'main_section' ), 'subpage_tabs_plugin' );
 			// Unique ID, Title, function callback, page name = do_settings_section, section name
-			add_settings_field( 'flickr_width', __( 'Width (in pixels)' ), array( $this, 'width_field'), 'subpage_tabs_plugin', 'flickr_show_section');
-			add_settings_field( 'flickr_height', __('Height (in pixels)' ), array( $this, 'height_field'), 'subpage_tabs_plugin', 'flickr_show_section');
-			add_settings_field( 'flickr_username', __( 'Username' ), array( $this, 'username_field'), 'subpage_tabs_plugin', 'flickr_show_section');
+			add_settings_field( 'spat_active_tab_background', __( 'Active Tab Background' ), array( $this, 'active_tab_background'), 'subpage_tabs_plugin', 'subpages_tabs_section');
+			/**/
+			add_settings_field( 'spat_active_tab_foreground', __('Active Tab Text' ), array( $this, 'active_tab_foreground'), 'subpage_tabs_plugin', 'subpages_tabs_section');
+			add_settings_field( 'spat_inactive_tab_background', __( 'Inactive Tab Background' ), array( $this, 'inactive_tab_background'), 'subpage_tabs_plugin', 'subpages_tabs_section');
+			add_settings_field( 'spat_inactive_tab_foreground', __('Inactive Tab Text' ), array( $this, 'inactive_tab_foreground'), 'subpage_tabs_plugin', 'subpages_tabs_section');
+
+			add_settings_field( 'border', __('Border' ), array( $this, 'border'), 'subpage_tabs_plugin', 'subpages_tabs_section');
+			//*/
 		}
 
 		/*
@@ -185,7 +197,100 @@ jQuery(
 				// GNDN
 		}
 
+		/*
+		 * Code for fields
+		 */
+		function active_tab_background() {
+			// Matches field # of register_setting
+			$options = get_option( 'subpages_as_tabs_options' );
+?>
+			<input id="spat_active_tab_background" name="subpages_as_tabs_options[active_tab_background]" type="text" size="7" value="<?php _e( $options['active_tab_background'] );?>" />
+<?php
+		}
 
+		/*
+		 * Code for fields
+		 */
+		function active_tab_foreground() {
+			// Matches field # of register_setting
+			$options = get_option( 'subpages_as_tabs_options' );
+?>
+			<input id="spat_active_tab_foreground" name="subpages_as_tabs_options[active_tab_foreground]" type="text" size="7" value="<?php _e( $options['active_tab_foreground'] );?>" />
+<?php
+		}
+
+		/*
+		 * Code for fields
+		 */
+		function inactive_tab_background() {
+			// Matches field # of register_setting
+			$options = get_option( 'subpages_as_tabs_options' );
+?>
+			<input id="spat_inactive_tab_background" name="subpages_as_tabs_options[inactive_tab_background]" type="text" size="7" value="<?php _e( $options['inactive_tab_background'] );?>" />
+<?php
+		}
+
+
+		/*
+		 * Code for fields
+		 */
+		function inactive_tab_foreground() {
+			// Matches field # of register_setting
+			$options = get_option( 'subpages_as_tabs_options' );
+?>
+			<input id="spat_inactive_tab_foreground" name="subpages_as_tabs_options[inactive_tab_foreground]" type="text" size="7" value="<?php _e( $options['inactive_tab_foreground'] );?>" />
+<?php
+		}
+
+		/*
+		 * Code for fields
+		 */
+		function border() {
+			// Matches field # of register_setting
+			$options = get_option( 'subpages_as_tabs_options' );
+?>
+			<input id="spat_border" name="subpages_as_tabs_options[border]" type="text" size="7" value="<?php _e( $options['border'] );?>" />
+<?php
+		}
+
+
+		/*
+		 * Validate presense of parameters
+		 * Verify height, width are numbers
+		 */
+		function options_validate( $input ) {
+				$active_tab_background = trim( $input['active_tab_background'] );
+				if( empty( $active_tab_background ) ) {
+						add_settings_error( "spat_active_tab_background", '', __( "Active Tab Background is required." ) );
+				}
+				$newinput['active_tab_background'] = $active_tab_background;
+
+				$active_tab_foreground = trim( $input['active_tab_foreground'] );
+				if( empty( $active_tab_foreground ) ) {
+						add_settings_error( "spat_active_tab_foreground", '', __( "Active Tab Foreground is required." ) );
+				}
+				$newinput['active_tab_foreground'] = $active_tab_foreground;
+
+				$inactive_tab_background = trim( $input['inactive_tab_background'] );
+				if( empty( $inactive_tab_background ) ) {
+						add_settings_error( "spat_inactive_tab_background", '', __( "Inactive Tab Background is required." ) );
+				}
+				$newinput['inactive_tab_background'] = $inactive_tab_background;
+
+				$inactive_tab_foreground = trim( $input['inactive_tab_foreground'] );
+				if( empty( $inactive_tab_foreground ) ) {
+						add_settings_error( "spat_inactive_tab_foreground", '', __( "Inactive Tab Foreground is required." ) );
+				}
+				$newinput['inactive_tab_foreground'] = $inactive_tab_foreground;
+
+				$border = trim( $input['border'] );
+				if( empty( $border ) ) {
+						add_settings_error( "spat_border", '', __( "Border is required." ) );
+				}
+				$newinput['border'] = $border;
+
+				return $newinput;
+		}
 	}
 }
 

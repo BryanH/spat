@@ -52,6 +52,8 @@ If you have a single file (ending in ".zip"), then use the *Upload* method. If y
 
 == Changelog ==
 
+1.00 Release. Has admin page for color settings.
+
 0.99 Beefed up child page retrieval code so now all child pages should be shown
 
 0.97 Ensure the child content's shortcodes are processed
@@ -66,8 +68,8 @@ If you have a single file (ending in ".zip"), then use the *Upload* method. If y
 
 == Upgrade Notice ==
 
-= 0.99 =
-Added robust child page retrieval code; corrected class name typo
+= 1.00 =
+Release-ready. Has admin settings page for color selection.
 
 ==Readme Generator==
 

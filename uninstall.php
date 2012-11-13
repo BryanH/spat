@@ -8,7 +8,7 @@ if( !defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	<p>Don't call this file directly. If you wish to uninstall, use the admin tool to do it.</p>";
 	wp_die( $message );
 } else {
-	$the_option = "subpage_as_tabs_options";
+	$the_option = "subpages_as_tabs_options";
 
 	/*
 	  If running in multisite environment,
