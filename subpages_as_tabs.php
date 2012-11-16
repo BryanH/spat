@@ -3,7 +3,7 @@
  * Plugin Name: Subpages as Tabs Shortcode
  * Plugin URI: http://hbjitney.com/subpages-as-tabs.html
  * Description: Add [spat] or [subpage_tabs] to any page to embed all subpages as tabs at that location.
- * Version: 1.01
+ * Version: 1.03
  * Author: HBJitney, LLC
  * Author URI: http://hbjitney.com/
  * License: GPL3
@@ -36,6 +36,8 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 		function __construct() {
 				add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 11 );
 				add_action( 'admin_enqueue_scripts', array( $this, 'spat_admin_shortcode_enqueue' ) );
+				add_action( 'add_meta_boxes', array( $this, 'add_some_meta_box' ) );
+		add_filter('screen_layout_columns', array(&$this, 'on_screen_layout_columns'), 10, 2);
 
 				add_action('admin_menu', array( $this, 'add_admin' ) );
 				add_action( 'admin_init', array( $this, 'admin_init' ) );
@@ -46,7 +48,12 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 
 				add_filter( 'the_posts', array( $this, 'conditionally_add_scripts_and_styles' ) ); // the_posts gets triggered before wp_head
 		}
-
+function on_screen_layout_columns($columns, $screen) {
+		if ($screen == $this->pagehook) {
+			$columns[$this->pagehook] = 2;
+		}
+		return $columns;
+	}
 		function spat_shortcode_enqueue() {
 				wp_enqueue_script( 'jquery' );
 				wp_enqueue_script( 'jquery-ui-core' );
@@ -157,83 +164,150 @@ jQuery(
 		 * Add our options to the settings menu
 		 */
 		function add_admin() {
-				add_options_page(
+			$this->pagehook = add_options_page(
 						__( "Subpages as Tabs" )
 						, __( "Subpages as Tabs" )
 						, 'manage_options'
 						, 'subpage_tabs_plugin'
 						, array( $this, 'plugin_options_page' )
 				);
+
+			//register callback to gets call prior your options_page rendering
+			add_action( 'load-' . $this->pagehook, array( &$this, 'add_the_meta_boxes' ) );
 		}
 
+		/**
+	     * Adds the meta box container
+	     */
+	    public function add_the_meta_boxes() {
+
+	        add_meta_box(
+	            'spat_options_metabox'					// ID
+	            , __( 'Subpages As Tabs Options' ) 		// Title
+	            , array( $this, 'plugin_options_form' ) // Render Code function
+	            , $this->pagehook							// Page hook
+	            , 'normal'								// Context
+	            , 'core'								// ??
+	        );
+
+	        add_meta_box(
+	             'spat_demo_metabox'					// ID
+	            , __( 'Preview' )							// Title
+	            , array( $this, 'plugin_demo_page' ) 	// Render Code Function
+	            , $this->pagehook						// Page hook
+	            , 'side'								// Context
+	            , 'core'								// ??
+	        );
+	    }
 
 		/**
 		 * Callback for options page - set up page title and instantiate fields
 		 */
 		function plugin_options_page() {
+			global $screen_layout_columns;
 ?>
-		<div class="plugin-options">
-		<h2><span><?php _e( "Subpage as Tabs Options" ); ?></span></h2>
-		<p><?php _e( "Here you set the tab appearance (colors, borders, etc)." ); ?></p>
-		 <form action="options.php" method="post">
+		<div class="wrap">
+<?php
+			screen_icon('options-general');
+?>
+			<h2><?php _e( "Subpage as Tabs Options" ); ?></h2>
+			<p><?php _e( "Here you set the tab appearance (colors, borders, etc)." ); ?></p>
+			<form action="options.php" method="post">
+				<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
+				<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
+				<div id="poststuff" class="metabox-holder<?php echo 2 == $screen_layout_columns ? ' has-right-sidebar' : ''; ?>">
+					<div id="side-info-column" class="inner-sidebar">
+<?php
+			do_meta_boxes($this->pagehook, 'side', null);
+?>
+					</div>
+
+				<div id="post-body" class="has-sidebar">
+					<div id="post-body-content" class="has-sidebar-content">
+<?php
+			do_meta_boxes($this->pagehook, 'normal', null);
+?>
+					</div>
+				</div></div>
+				<script type="text/javascript">
+				/*<![CDATA[*/
+				jQuery(document).ready( function($) {
+					// close postboxes that should be closed
+					$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
+					// postboxes setup
+					postboxes.add_postbox_toggles('<?php echo $this->pagehook; ?>');
+				});
+				/*]]>*/
+				</script>
+			</form>
+		</div>
+<?php
+		}
+
+	/*
+	 * Content for normal meta box
+	 */
+	function plugin_options_form() {
+?>
+			<input type="hidden" name="action" value="save_metaboxes_general" />
 <?php
 		  settings_fields( 'subpages_as_tabs_options' );
 		  do_settings_sections( 'subpage_tabs_plugin' );
 ?>
 
 		  <input name="Submit" type="submit" value="<?php esc_attr_e( 'Save Changes' ); ?>" />
-		 </form>
-		</div>
-		<div class="right">
-    <div id="subpage-tabs">
-      <ul>
-        <li>
-          <a href="#tab1">Tab 1</a>
-        </li>
+<?php
+	}
 
-        <li>
-          <a href="#tab2">Tab 2</a>
-        </li>
+	/**
+	 * Content for side meta box
+	 */
+	function plugin_demo_page() {
+?>
+<div id="subpage-tabs">
+	<ul>
+		<li>
+			<a href="#tab1">Tab 1</a>
+		</li>
 
-        <li>
-          <a href="#tab3">Tab 3</a>
-        </li>
-      </ul>
+		<li>
+			<a href="#tab2">Tab 2</a>
+		</li>
 
-      <div id="tab1">
-        <h2>Example</h2>Maecenas sed diam eget risus varius blandit sit
-        amet non magna. Morbi leo risus, porta ac consectetur ac,
-        vestibulum at eros. Fusce dapibus, tellus ac cursus commodo,
-        tortor mauris condimentum nibh, ut fermentum massa justo sit amet
-        risus. Etiam porta sem malesuada magna mollis euismod. Aenean eu
-        leo quam. Pellentesque ornare sem lacinia quam venenatis
-        vestibulum. Maecenas faucibus mollis interdum.
-        <form action="#"><label>Answer: <input type="text" /></label>
-      </div>
+		<li>
+			<a href="#tab3">Tab 3</a>
+		</li>
+	</ul>
 
-      <div id="tab2">
-        <p>Donec sed odio dui. Donec id elit non mi porta gravida at eget
-        metus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam
-        venenatis vestibulum. Nullam id dolor id nibh ultricies vehicula
-        ut id elit. Praesent commodo cursus magna, vel scelerisque nisl
-        consectetur et. Etiam porta sem malesuada magna mollis
-        euismod.</p>
-        <select name=foo><option>One</option><option>Two</option><option>Three</option></select>
-      </div>
+	<div id="tab1">
+		<h2>Example 1</h2><p>Maecenas sed diam eget risus varius blandit sit
+		amet non magna. Morbi leo risus, porta ac consectetur ac,
+		vestibulum at eros. Fusce dapibus, tellus ac cursus commodo,
+		tortor mauris condimentum nibh, ut fermentum massa justo sit amet
+		risus. Etiam porta sem malesuada magna mollis euismod. Aenean eu
+		leo quam. Pellentesque ornare sem lacinia quam venenatis
+		vestibulum. Maecenas faucibus mollis interdum.</p>
+	</div>
 
-      <div id="tab3">
-        <p>Donec sed odio dui. Maecenas faucibus mollis interdum. Donec
-        ullamcorper nulla non metus auctor fringilla. Fusce dapibus,
-        tellus ac cursus commodo, tortor mauris condimentum nibh, ut
-        fermentum massa justo sit amet risus. Aenean eu leo quam.
-        Pellentesque ornare sem lacinia quam venenatis vestibulum. Vivamus
-        sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.
-        Curabitur blandit tempus porttitor.</p>
-        <textarea rows=4 cols=40></textarea>
-        <p><button type=select value=Go />To Blathe</button>
-      </div>
-    </div>
-  </div>
+	<div id="tab2">
+		<h2>Example 2</h2><p>Donec sed odio dui. Donec id elit non mi porta gravida at eget
+		metus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam
+		venenatis vestibulum. Nullam id dolor id nibh ultricies vehicula
+		ut id elit. Praesent commodo cursus magna, vel scelerisque nisl
+		consectetur et. Etiam porta sem malesuada magna mollis
+		euismod.</p>
+	</div>
+
+	<div id="tab3">
+		<h2>Example 3</h2><p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Maecenas faucibus mollis interdum. Donec
+		ullamcorper nulla non metus auctor fringilla. Fusce dapibus,
+		tellus ac cursus commodo, tortor mauris condimentum nibh, ut
+		fermentum massa justo sit amet risus. Aenean eu leo quam.
+		Pellentesque ornare sem lacinia quam venenatis vestibulum. Vivamus
+		sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.
+		Curabitur blandit tempus porttitor.</p>
+	</div>
+</div>
 <?php
 		}
 
@@ -241,6 +315,10 @@ jQuery(
 		 * Define options section (only one) and fields (also only one!)
 		 */
 		function admin_init() {
+			wp_enqueue_script('common');
+			wp_enqueue_script('wp-lists');
+			wp_enqueue_script('postbox');
+
 			// Group = setings_fields, name of options, validation callback
 			register_setting( 'subpages_as_tabs_options', 'subpages_as_tabs_options', array( $this, 'options_validate' ) );
 			// Unique ID, section title displayed, section callback, page name = do_settings_section
