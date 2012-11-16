@@ -52,7 +52,9 @@ If you have a single file (ending in ".zip"), then use the *Upload* method. If y
 
 == Changelog ==
 
-1.00 Release. Has admin page for color settings.
+1.01 Color picker used instead of typing in color values
+
+1.00 Release. Has admin page for color settings
 
 0.99 Beefed up child page retrieval code so now all child pages should be shown
 
@@ -60,7 +62,7 @@ If you have a single file (ending in ".zip"), then use the *Upload* method. If y
 
 0.95 Added plural/singular tag to avoid confusion and easy-to-make mistakes
 
-0.93 Made our Stylesheet/Javascript only show up on pages that have our shortcode, for speed.
+0.93 Made our Stylesheet/Javascript only show up on pages that have our shortcode, for speed
 
 0.90 Hard-coded stylesheet
 
@@ -68,8 +70,8 @@ If you have a single file (ending in ".zip"), then use the *Upload* method. If y
 
 == Upgrade Notice ==
 
-= 1.00 =
-Release-ready. Has admin settings page for color selection.
+= 1.01 =
+Color picker enhanced
 
 ==Readme Generator==
 

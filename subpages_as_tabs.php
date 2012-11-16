@@ -3,7 +3,7 @@
  * Plugin Name: Subpages as Tabs Shortcode
  * Plugin URI: http://hbjitney.com/subpages-as-tabs.html
  * Description: Add [spat] or [subpage_tabs] to any page to embed all subpages as tabs at that location.
- * Version: 1.00
+ * Version: 1.01
  * Author: HBJitney, LLC
  * Author URI: http://hbjitney.com/
  * License: GPL3
@@ -35,6 +35,7 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 		 */
 		function __construct() {
 				add_action( 'wp_enqueue_scripts', array( $this, 'spat_shortcode_enqueue' ), 11 );
+				add_action( 'admin_enqueue_scripts', array( $this, 'spat_admin_shortcode_enqueue' ) );
 
 				add_action('admin_menu', array( $this, 'add_admin' ) );
 				add_action( 'admin_init', array( $this, 'admin_init' ) );
@@ -42,6 +43,7 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 				add_shortcode('spat', array( $this, 'render_tabs' ) );
 				add_shortcode('subpage_tabs', array( $this, 'render_tabs' ) );
 				add_shortcode('subpages_tabs', array( $this, 'render_tabs' ) );
+
 				add_filter( 'the_posts', array( $this, 'conditionally_add_scripts_and_styles' ) ); // the_posts gets triggered before wp_head
 		}
 
@@ -54,6 +56,20 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 
 				wp_register_style( 'subpage-tab-style', plugins_url( 'tab-style.php', __FILE__ ) );
 				wp_enqueue_style( 'subpage-tab-style' );
+		}
+
+		/** Admin resources
+		*/
+		function spat_admin_shortcode_enqueue( $hook ) {
+			// Only target our page
+			wp_enqueue_script('spectrum_js', plugins_url( 'spectrum.js', __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-tabs' ), '33.3' );
+			wp_register_style( 'spectrum', plugins_url( 'spectrum.css', __FILE__ ) );
+			wp_enqueue_style( 'spectrum' );
+
+			wp_register_style( 'subpage-tab-style', plugins_url( 'tab-style.php', __FILE__ ) );
+			wp_enqueue_style( 'subpage-tab-style' );
+
+			wp_enqueue_script('spat', plugins_url( 'spat.js', __FILE__ ), array( 'spectrum_js' ) );
 		}
 
 		/**
@@ -168,6 +184,56 @@ jQuery(
 		  <input name="Submit" type="submit" value="<?php esc_attr_e( 'Save Changes' ); ?>" />
 		 </form>
 		</div>
+		<div class="right">
+    <div id="subpage-tabs">
+      <ul>
+        <li>
+          <a href="#tab1">Tab 1</a>
+        </li>
+
+        <li>
+          <a href="#tab2">Tab 2</a>
+        </li>
+
+        <li>
+          <a href="#tab3">Tab 3</a>
+        </li>
+      </ul>
+
+      <div id="tab1">
+        <h2>Example</h2>Maecenas sed diam eget risus varius blandit sit
+        amet non magna. Morbi leo risus, porta ac consectetur ac,
+        vestibulum at eros. Fusce dapibus, tellus ac cursus commodo,
+        tortor mauris condimentum nibh, ut fermentum massa justo sit amet
+        risus. Etiam porta sem malesuada magna mollis euismod. Aenean eu
+        leo quam. Pellentesque ornare sem lacinia quam venenatis
+        vestibulum. Maecenas faucibus mollis interdum.
+        <form action="#"><label>Answer: <input type="text" /></label>
+      </div>
+
+      <div id="tab2">
+        <p>Donec sed odio dui. Donec id elit non mi porta gravida at eget
+        metus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam
+        venenatis vestibulum. Nullam id dolor id nibh ultricies vehicula
+        ut id elit. Praesent commodo cursus magna, vel scelerisque nisl
+        consectetur et. Etiam porta sem malesuada magna mollis
+        euismod.</p>
+        <select name=foo><option>One</option><option>Two</option><option>Three</option></select>
+      </div>
+
+      <div id="tab3">
+        <p>Donec sed odio dui. Maecenas faucibus mollis interdum. Donec
+        ullamcorper nulla non metus auctor fringilla. Fusce dapibus,
+        tellus ac cursus commodo, tortor mauris condimentum nibh, ut
+        fermentum massa justo sit amet risus. Aenean eu leo quam.
+        Pellentesque ornare sem lacinia quam venenatis vestibulum. Vivamus
+        sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.
+        Curabitur blandit tempus porttitor.</p>
+        <textarea rows=4 cols=40></textarea>
+        <p><button type=select value=Go />To Blathe</button>
+      </div>
+    </div>
+  </div>
 <?php
 		}
 
@@ -204,7 +270,7 @@ jQuery(
 			// Matches field # of register_setting
 			$options = get_option( 'subpages_as_tabs_options' );
 ?>
-			<input id="spat_active_tab_background" name="subpages_as_tabs_options[active_tab_background]" type="text" size="7" value="<?php _e( $options['active_tab_background'] );?>" />
+			<input id="spat_active_tab_background" name="subpages_as_tabs_options[active_tab_background]" class="color_pick" type="color" size="7" value="<?php _e( $options['active_tab_background'] );?>" />
 <?php
 		}
 
@@ -215,7 +281,7 @@ jQuery(
 			// Matches field # of register_setting
 			$options = get_option( 'subpages_as_tabs_options' );
 ?>
-			<input id="spat_active_tab_foreground" name="subpages_as_tabs_options[active_tab_foreground]" type="text" size="7" value="<?php _e( $options['active_tab_foreground'] );?>" />
+			<input id="spat_active_tab_foreground" name="subpages_as_tabs_options[active_tab_foreground]" class="color_pick" type="color" size="7" value="<?php _e( $options['active_tab_foreground'] );?>" />
 <?php
 		}
 
@@ -226,7 +292,7 @@ jQuery(
 			// Matches field # of register_setting
 			$options = get_option( 'subpages_as_tabs_options' );
 ?>
-			<input id="spat_inactive_tab_background" name="subpages_as_tabs_options[inactive_tab_background]" type="text" size="7" value="<?php _e( $options['inactive_tab_background'] );?>" />
+			<input id="spat_inactive_tab_background" name="subpages_as_tabs_options[inactive_tab_background]" class="color_pick" type="color" size="7" value="<?php _e( $options['inactive_tab_background'] );?>" />
 <?php
 		}
 
@@ -238,7 +304,7 @@ jQuery(
 			// Matches field # of register_setting
 			$options = get_option( 'subpages_as_tabs_options' );
 ?>
-			<input id="spat_inactive_tab_foreground" name="subpages_as_tabs_options[inactive_tab_foreground]" type="text" size="7" value="<?php _e( $options['inactive_tab_foreground'] );?>" />
+			<input id="spat_inactive_tab_foreground" name="subpages_as_tabs_options[inactive_tab_foreground]" class="color_pick" type="color" size="7" value="<?php _e( $options['inactive_tab_foreground'] );?>" />
 <?php
 		}
 
@@ -249,7 +315,7 @@ jQuery(
 			// Matches field # of register_setting
 			$options = get_option( 'subpages_as_tabs_options' );
 ?>
-			<input id="spat_border" name="subpages_as_tabs_options[border]" type="text" size="7" value="<?php _e( $options['border'] );?>" />
+			<input id="spat_border" name="subpages_as_tabs_options[border]" class="color_pick" type="color" size="7" value="<?php _e( $options['border'] );?>" />
 <?php
 		}
 
@@ -267,7 +333,7 @@ jQuery(
 
 				$active_tab_foreground = trim( $input['active_tab_foreground'] );
 				if( empty( $active_tab_foreground ) ) {
-						add_settings_error( "spat_active_tab_foreground", '', __( "Active Tab Foreground is required." ) );
+						add_settings_error( "spat_active_tab_foreground", '', __( "Active Tab Text is required." ) );
 				}
 				$newinput['active_tab_foreground'] = $active_tab_foreground;
 
@@ -279,7 +345,7 @@ jQuery(
 
 				$inactive_tab_foreground = trim( $input['inactive_tab_foreground'] );
 				if( empty( $inactive_tab_foreground ) ) {
-						add_settings_error( "spat_inactive_tab_foreground", '', __( "Inactive Tab Foreground is required." ) );
+						add_settings_error( "spat_inactive_tab_foreground", '', __( "Inactive Tab Text is required." ) );
 				}
 				$newinput['inactive_tab_foreground'] = $inactive_tab_foreground;
 
