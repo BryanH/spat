@@ -48,12 +48,14 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 
 				add_filter( 'the_posts', array( $this, 'conditionally_add_scripts_and_styles' ) ); // the_posts gets triggered before wp_head
 		}
-function on_screen_layout_columns($columns, $screen) {
-		if ($screen == $this->pagehook) {
-			$columns[$this->pagehook] = 2;
+
+		function on_screen_layout_columns($columns, $screen) {
+			if ($screen == $this->pagehook) {
+				$columns[$this->pagehook] = 2;
+			}
+			return $columns;
 		}
-		return $columns;
-	}
+
 		function spat_shortcode_enqueue() {
 				wp_enqueue_script( 'jquery' );
 				wp_enqueue_script( 'jquery-ui-core' );
@@ -76,7 +78,7 @@ function on_screen_layout_columns($columns, $screen) {
 			wp_register_style( 'subpage-tab-style', plugins_url( 'tab-style.php', __FILE__ ) );
 			wp_enqueue_style( 'subpage-tab-style' );
 
-			wp_enqueue_script('spat', plugins_url( 'spat.js', __FILE__ ), array( 'spectrum_js' ) );
+			wp_enqueue_script('spat', plugins_url( 'spat.js', __FILE__ ), array( 'spectrum_js' ), 0.9 );
 		}
 
 		/**
@@ -165,11 +167,11 @@ jQuery(
 		 */
 		function add_admin() {
 			$this->pagehook = add_options_page(
-						__( "Subpages as Tabs" )
-						, __( "Subpages as Tabs" )
-						, 'manage_options'
-						, 'subpage_tabs_plugin'
-						, array( $this, 'plugin_options_page' )
+					__( "Subpages as Tabs" )
+					, __( "Subpages as Tabs" )
+					, 'manage_options'
+					, 'subpage_tabs_plugin'
+					, array( $this, 'plugin_options_page' )
 				);
 
 			//register callback to gets call prior your options_page rendering
@@ -180,7 +182,6 @@ jQuery(
 	     * Adds the meta box container
 	     */
 	    public function add_the_meta_boxes() {
-
 	        add_meta_box(
 	            'spat_options_metabox'					// ID
 	            , __( 'Subpages As Tabs Options' ) 		// Title
@@ -222,21 +223,22 @@ jQuery(
 ?>
 					</div>
 
-				<div id="post-body" class="has-sidebar">
-					<div id="post-body-content" class="has-sidebar-content">
+					<div id="post-body" class="has-sidebar">
+						<div id="post-body-content" class="has-sidebar-content">
 <?php
 			do_meta_boxes($this->pagehook, 'normal', null);
 ?>
+						</div>
 					</div>
-				</div></div>
+				</div>
 				<script type="text/javascript">
 				/*<![CDATA[*/
-				jQuery(document).ready( function($) {
-					// close postboxes that should be closed
-					$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
-					// postboxes setup
-					postboxes.add_postbox_toggles('<?php echo $this->pagehook; ?>');
-				});
+					jQuery(document).ready( function($) {
+						// close postboxes that should be closed
+						$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
+						// postboxes setup
+						postboxes.add_postbox_toggles('<?php echo $this->pagehook; ?>');
+					});
 				/*]]>*/
 				</script>
 			</form>
@@ -244,10 +246,10 @@ jQuery(
 <?php
 		}
 
-	/*
-	 * Content for normal meta box
-	 */
-	function plugin_options_form() {
+		/*
+		 * Content for normal meta box
+		 */
+		function plugin_options_form() {
 ?>
 			<input type="hidden" name="action" value="save_metaboxes_general" />
 <?php
@@ -257,12 +259,12 @@ jQuery(
 
 		  <input name="Submit" type="submit" value="<?php esc_attr_e( 'Save Changes' ); ?>" />
 <?php
-	}
+		}
 
-	/**
-	 * Content for side meta box
-	 */
-	function plugin_demo_page() {
+		/**
+		 * Content for side meta box
+		 */
+		function plugin_demo_page() {
 ?>
 <div id="subpage-tabs">
 	<ul>

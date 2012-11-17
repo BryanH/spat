@@ -32,10 +32,6 @@ jQuery(function($) {
 		, showInitial: true
 		, chooseText: "Save"
 		, preferredFormat: "hex"
-		, move: function(color) {
-			var hexColor = color.toHexString();
-			$(".ui-state-active a").css('color', hexColor );
-			}
 		, hide: function(color) {
 			var hexColor = color.toHexString();
 			$(".ui-state-active a").css('color', hexColor );
@@ -50,20 +46,11 @@ jQuery(function($) {
 		, showInitial: true
 		, chooseText: "Save"
 		, preferredFormat: "hex"
-		/**
-		, move: function(color) {
-			var hexColor = color.toHexString();
-			$(".ui-state-active a")
-				.css('background', hexColor + " url(images/ui-bg_glass_85_dfeffc_1x400.png) 50% 50% repeat-x" )
-				.css('border', hextColor );
-			}
-			//*/
 		, hide: function(color) {
 			var hexColor = color.toHexString();
 			$(".ui-state-active a")
 				.css('background', hexColor + " url(images/ui-bg_glass_85_dfeffc_1x400.png) 50% 50% repeat-x")
-				.css('border', hextColor );
-
+				.css('border', "1px solid " + hexColor );
 			}
 	});
 
@@ -76,14 +63,10 @@ jQuery(function($) {
 		, showInitial: true
 		, chooseText: "Save"
 		, preferredFormat: "hex"
-		, move: function(color) {
-			var hexColor = color.toHexString();
-			$(".ui-state-default a").css('color', hexColor );
-			}
 		, hide: function(color) {
 			var hexColor = color.toHexString();
 			$(".ui-state-default a").css('color', hexColor );
-			}
+		}
 	});
 
 	$("#spat_inactive_tab_background").spectrum({
@@ -99,8 +82,8 @@ jQuery(function($) {
 			var hexColor = color.toHexString();
 			$(".ui-state-default")
 				.css('background', hexColor + " url(images/ui-bg_glass_85_dfeffc_1x400.png) 50% 50% repeat-x")
-				.css('border', hextColor );
-			}
+				.css('border', "1px solid " + hexColor );
+		}
 	});
 
 	$("#spat_border").spectrum({
@@ -113,8 +96,13 @@ jQuery(function($) {
 		, chooseText: "Save"
 		, preferredFormat: "hex"
 		, hide: function(color) {
-			updateCss();
-			}
+			var hexColor = color.toHexString();
+			//alert( "setting to color " + hexColor);
+			$(".ui-widget-content")
+				.css('border', "1px solid " + hexColor );
+			$(".ui-tabs-panel").css('border','');
+//			updateCss();
+		}
 	});
 });
 
