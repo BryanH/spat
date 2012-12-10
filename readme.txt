@@ -19,7 +19,7 @@ Simply add [spat] or [subpages_tabs] to any page and the subpages' content will 
 == Installation ==
 If you have a single file (ending in ".zip"), then use the *Upload* method. If you have multiple files, use the *Files* method. If you're installing from wordpress directly, just hit the big 'Install Plugin' button.
 = Upload =
-1. From the plugins, add new screen, choose upload
+1. From the plugins menu, choose 'add new', then select 'upload'
 1. Navigate to where the .zip file is located and select it
 1. Make sure to *activate* the plugin once it is installed
 

@@ -3,7 +3,7 @@
  * Plugin Name: Subpages as Tabs Shortcode
  * Plugin URI: http://hbjitney.com/subpages-as-tabs.html
  * Description: Add [spat] or [subpage_tabs] to any page to embed all subpages as tabs at that location.
- * Version: 1.03
+ * Version: 1.07
  * Author: HBJitney, LLC
  * Author URI: http://hbjitney.com/
  * License: GPL3
@@ -61,8 +61,9 @@ if ( !class_exists('SubPageAsTabs' ) ) {
 				wp_enqueue_script( 'jquery-ui-core' );
 				wp_enqueue_script( 'jquery-ui-tabs' );
 				wp_enqueue_script( 'jquery-ui-widget' );
-				wp_enqueue_script( 'jquery-ui-widget' );
 
+				wp_register_style( 'jquery-ui-tab-style', plugins_url( 'tab-style.php', __FILE__ ) );
+				wp_register_style( 'subpage-tab-style', plugins_url( 'tab-style.php', __FILE__ ) );
 				wp_register_style( 'subpage-tab-style', plugins_url( 'tab-style.php', __FILE__ ) );
 				wp_enqueue_style( 'subpage-tab-style' );
 		}
